@@ -47,7 +47,23 @@ router.get('/:id/comments', (req, res) => {
         })
         .catch(() => {
             res.status(500).json({ message: "The comments information could not be retrieved" });
-        });
     });
+});
+
+// [POST] requests
+router.post('/', (req, res) => {
+    const { title, contents } = req.body;
+    Post.insert({ title, contents })
+        .then(post => {
+            if (title === undefined || contents === undefined) {
+                res.status(400).json({ message: "Please provide title and contents for the post" });
+            } else {
+                res.status(201).json(post);
+            }
+        })
+        .catch(() => {
+            res.status(500).json({ message: "There was an error while saving the post to the database" });
+        });
+});
 
 module.exports = router;
