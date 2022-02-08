@@ -99,17 +99,18 @@ router.put('/:id', (req, res) => {
 // [DELETE] requests
 router.delete('/:id', (req, res) => {
     const { id } = req.params;
-    Post.remove(id)
-        .then(delPost => {
-            if (delPost === null || delPost === undefined) {
+    Post.findById(id)
+        .then(post => {
+            if (post === null | post === undefined) {
                 res.status(404).json({ message: "The post with the specified ID does not exist" });
             } else {
-                res.status(200).json(delPost);
+                res.status(200).json(post);
+                return Post.remove(id);
             }
         })
         .catch(() => {
-            res.status(500).json({ message: "The comments information could not be retrieved" });
-        });
+            res.status(500).json({ message: "The post could not be removed" });
+        })
 });
 
 module.exports = router;
