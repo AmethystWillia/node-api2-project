@@ -54,7 +54,7 @@ router.get('/:id/comments', (req, res) => {
 router.post('/', (req, res) => {
     const { title, contents } = req.body;
     if (!title || !contents) {
-        res.status(400).json({ message: 'you fucked up' });
+        res.status(400).json({ message: "Please provide title and contents for the post" });
     } else {
         Post.insert({ title, contents })
         .then(({ id }) => {
@@ -73,19 +73,27 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
     const { id } = req.params;
     const { title, contents } = req.body;
-    Post.update(id, { title, contents })
-        .then(post => {
-            if (post === null || post === undefined) {
-                res.status(404).json({ message: "The post with the specified ID does not exist" });
-            } else if (title === undefined || contents === undefined) {
-                res.status(400).json({ message: "Please provide title and contents for the post" });
-            } else {
-                res.status(200).json(post);
-            }
-        })
-        .catch(() => {
-            res.status(500).json({ message: "The post information could not be modified" });
-        });
+    if (!title || !contents) {
+        res.status(400).json({ message: "Please provide title and contents for the post" });
+    } else {
+        Post.findById(id)
+            .then(post => {
+                if (post === null | post === undefined) {
+                    res.status(404).json({ message: "The post with the specified ID does not exist" });
+                } else {
+                    return Post.update(id, { title, contents });
+                }
+            })
+            .then(data => {
+                if (data) {
+                    return Post.findById(id);
+                }
+            })
+            .then(updated => {
+                res.status(200).json(updated);
+            })
+            .catch()
+    }
 });
 
 // [DELETE] requests
